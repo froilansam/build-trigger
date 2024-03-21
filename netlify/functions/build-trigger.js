@@ -1,6 +1,10 @@
 const { Octokit } = require("octokit");
 const { WebClient } = require("@slack/web-api");
 
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
@@ -41,6 +45,8 @@ exports.handler = async (event) => {
         },
       }
     );
+
+    await delay(5000);
 
     const workflowRuns = await octokit.request(
       "GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
