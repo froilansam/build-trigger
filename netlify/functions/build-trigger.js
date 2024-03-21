@@ -17,7 +17,7 @@ exports.handler = async (event) => {
       {
         owner: "readyfastcode",
         repo: "foodready-mobile",
-        workflow_id: "manual-staging-build.yml",
+        workflow_id: "manual-staging-build",
         ref: "MA-792/fix-workflows",
         headers: {
           "X-GitHub-Api-Version": "2022-11-28",
