@@ -72,7 +72,7 @@ exports.handler = async (event) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*FroBot is now building Staging and Dev-client Apps...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
+            text: `*FroBot is now building Staging and Dev-client Apps* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
           },
           accessory: {
             type: "image",
@@ -95,7 +95,7 @@ exports.handler = async (event) => {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*FroBot is now building Staging and Dev-client Apps...* \n\nWorkflow Link: https://github.com/readyfastcode/foodready-mobile/actions/workflows/manual-staging-build.yml`,
+          text: `*FroBot is now building Staging and Dev-client Apps* \n\nWorkflow Link: https://github.com/readyfastcode/foodready-mobile/actions/workflows/manual-staging-build.yml`,
         },
         accessory: {
           type: "image",
