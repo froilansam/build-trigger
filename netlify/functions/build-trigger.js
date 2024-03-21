@@ -68,7 +68,7 @@ exports.handler = async (event) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "*FroBot is now building...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}",
+            text: `*FroBot is now building...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
           },
           accessory: {
             type: "image",
