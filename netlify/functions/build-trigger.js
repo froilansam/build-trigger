@@ -45,7 +45,7 @@ exports.handler = async (event) => {
     }
   );
 
-  await delay(2000);
+  await delay(1000);
 
   const workflowRuns = await octokit.request(
     "GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
