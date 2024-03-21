@@ -23,7 +23,7 @@ exports.handler = async (event) => {
       }
     );
 
-    console.log({ response });
+    console.log(JSON.stringify(response.data, null, 2));
 
     await octokit.request(
       "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
