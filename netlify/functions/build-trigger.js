@@ -24,7 +24,7 @@ exports.handler = async (event) => {
 
     console.log(JSON.stringify(response.data, null, 2));
 
-    const res = await octokit.request(
+    await octokit.request(
       "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
       {
         owner: "readyfastcode",
@@ -36,8 +36,6 @@ exports.handler = async (event) => {
         },
       }
     );
-
-    console.log(JSON.stringify(res, null, 2));
 
     // Octokit.js
     // https://github.com/octokit/core.js#readme
@@ -52,6 +50,8 @@ exports.handler = async (event) => {
         },
       }
     );
+
+    console.log(JSON.stringify(workflowRuns, null, 2));
 
     if (workflowRuns.workflow_runs?.length) {
       const lastWorkflowRun = workflowRuns.workflow_runs[0];
