@@ -13,7 +13,7 @@ exports.handler = async (event) => {
   const token = process.env.GITHUB_TOKEN;
   const slackToken = process.env.SLACK_BOT_TOKEN;
   const web = new WebClient(slackToken);
-  const channel = "C06QPFQKTSQ";
+  const channel = "C06FHJZ2Q0H";
 
   const octokit = new Octokit({
     auth: token,
