@@ -42,9 +42,6 @@ exports.handler = async (event) => {
       }
     );
 
-    // Octokit.js
-    // https://github.com/octokit/core.js#readme
-
     const workflowRuns = await octokit.request(
       "GET /repos/{owner}/{repo}/actions/runs",
       {
@@ -64,18 +61,20 @@ exports.handler = async (event) => {
 
       await web.chat.postMessage({
         channel: channel,
-        blocks: {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `*FroBot is now building...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*FroBot is now building...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
+            },
+            accessory: {
+              type: "image",
+              image_url: "https://i.ibb.co/MpvbWcb/ezgif-6-8f0882297a.jpg",
+              alt_text: "FroBot building staging and dev-client apps.",
+            },
           },
-          accessory: {
-            type: "image",
-            image_url: "https://i.ibb.co/MpvbWcb/ezgif-6-8f0882297a.jpg",
-            alt_text: "FroBot building staging and dev-client apps.",
-          },
-        },
+        ],
       });
 
       return {
