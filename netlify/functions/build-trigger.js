@@ -42,52 +42,51 @@ exports.handler = async (event) => {
       }
     );
 
-    setInterval(async () => {
-      const workflowRuns = await octokit.request(
-        "GET /repos/{owner}/{repo}/actions/runs",
-        {
-          owner: "readyfastcode",
-          repo: "foodready-mobile",
-          headers: {
-            "X-GitHub-Api-Version": "2022-11-28",
-          },
-        }
+    const workflowRuns = await octokit.request(
+      "GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
+      {
+        owner: "readyfastcode",
+        repo: "foodready-mobile",
+        workflow_id: "89219970",
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      }
+    );
+
+    if (workflowRuns.data.workflow_runs?.length) {
+      const lastWorkflowRun = workflowRuns.data.workflow_runs[0];
+      console.log(
+        `Last workflow run: ${lastWorkflowRun.html_url} - ${lastWorkflowRun.status}`
       );
 
-      if (workflowRuns.data.workflow_runs?.length) {
-        const lastWorkflowRun = workflowRuns.data.workflow_runs[0];
-        console.log(
-          `Last workflow run: ${lastWorkflowRun.html_url} - ${lastWorkflowRun.status}`
-        );
-
-        await web.chat.postMessage({
-          channel: channel,
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*FroBot is now building...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
-              },
-              accessory: {
-                type: "image",
-                image_url: "https://i.ibb.co/MpvbWcb/ezgif-6-8f0882297a.jpg",
-                alt_text: "FroBot building staging and dev-client apps.",
-              },
+      await web.chat.postMessage({
+        channel: channel,
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*FroBot is now building...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
             },
-          ],
-        });
-
-        return {
-          statusCode: 200,
-        };
-      }
+            accessory: {
+              type: "image",
+              image_url: "https://i.ibb.co/MpvbWcb/ezgif-6-8f0882297a.jpg",
+              alt_text: "FroBot building staging and dev-client apps.",
+            },
+          },
+        ],
+      });
 
       return {
         statusCode: 200,
-        body: "*FroBot is now building...*\n\nWorkflow Link: https://github.com/readyfastcode/foodready-mobile/actions/workflows/manual-staging-build.yml",
       };
-    }, 5000);
+    }
+
+    return {
+      statusCode: 200,
+      body: "*FroBot is now building Staging and Dev-client Apps...*\n\nWorkflow Link: https://github.com/readyfastcode/foodready-mobile/actions/workflows/manual-staging-build.yml",
+    };
   } catch (error) {
     // Log any errors and return a 500 Internal Server Error status
     console.error(error);
