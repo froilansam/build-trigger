@@ -51,10 +51,8 @@ exports.handler = async (event) => {
       }
     );
 
-    console.log(JSON.stringify(workflowRuns, null, 2));
-
-    if (workflowRuns.workflow_runs?.length) {
-      const lastWorkflowRun = workflowRuns.workflow_runs[0];
+    if (workflowRuns.data.workflow_runs?.length) {
+      const lastWorkflowRun = workflowRuns.data.workflow_runs[0];
       console.log(
         `Last workflow run: ${lastWorkflowRun.html_url} - ${lastWorkflowRun.status}`
       );
