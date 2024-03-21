@@ -12,6 +12,19 @@ exports.handler = async (event) => {
       auth: token,
     });
 
+    const response = await octokit.request(
+      "GET /repos/{owner}/{repo}/actions/workflows",
+      {
+        owner: "readyfastcode",
+        repo: "foodready-mobile",
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      }
+    );
+
+    console.log({ response });
+
     await octokit.request(
       "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
       {
