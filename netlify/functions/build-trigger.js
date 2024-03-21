@@ -1,4 +1,4 @@
-const axios = require("axios");
+const Octokit = require("octokit");
 
 exports.handler = async (event) => {
   // Only proceed if the incoming request is a POST request
@@ -7,28 +7,24 @@ exports.handler = async (event) => {
   }
 
   try {
-    // Define the payload for the GitHub API request
-    const payload = {
-      event_type: "trigger-custom-action", // Must match the event type expected by your GitHub Actions workflow
-    };
+    const token = process.env.GITHUB_TOKEN;
+    const octokit = new Octokit({
+      auth: token,
+    });
 
-    // Read the GitHub token from Netlify's environment variables
-    const token = process.env.GITHUB_TOKEN; // Make sure to set this in your Netlify site's environment variables
-    const repo = "readyfastcode/foodready-mobile"; // Specify your GitHub repository
-
-    // Make a POST request to the GitHub API to trigger the repository_dispatch event
-    await axios.post(
-      `https://api.github.com/repos/${repo}/dispatches`,
-      payload,
+    await octokit.request(
+      "POST https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
       {
+        owner: "readyfastcode",
+        repo: "foodready-mobile",
+        workflow_id: "manual-staging-build.yml",
+        ref: "MA-792/fix-workflows",
         headers: {
-          Authorization: `token ${token}`, // Use the GitHub token for authorization
-          Accept: "application/vnd.github.everest-preview+json", // Use the custom media type for repository_dispatch events
+          "X-GitHub-Api-Version": "2022-11-28",
         },
       }
     );
 
-    // If the request is successful, return a success message
     return {
       statusCode: 200,
       body: "GitHub Action triggered successfully!",
