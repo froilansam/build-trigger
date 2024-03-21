@@ -67,7 +67,7 @@ exports.handler = async (event) => {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: `*FroBot is now building...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
+              text: `*FroBot is now building Staging and Dev-client Apps...* \n\nWorkflow Link: ${lastWorkflowRun.html_url}`,
             },
             accessory: {
               type: "image",
@@ -83,9 +83,26 @@ exports.handler = async (event) => {
       };
     }
 
+    await web.chat.postMessage({
+      channel: channel,
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*FroBot is now building Staging and Dev-client Apps...* \n\nWorkflow Link: https://github.com/readyfastcode/foodready-mobile/actions/workflows/manual-staging-build.yml`,
+          },
+          accessory: {
+            type: "image",
+            image_url: "https://i.ibb.co/MpvbWcb/ezgif-6-8f0882297a.jpg",
+            alt_text: "FroBot building staging and dev-client apps.",
+          },
+        },
+      ],
+    });
+
     return {
       statusCode: 200,
-      body: "*FroBot is now building Staging and Dev-client Apps...*\n\nWorkflow Link: https://github.com/readyfastcode/foodready-mobile/actions/workflows/manual-staging-build.yml",
     };
   } catch (error) {
     // Log any errors and return a 500 Internal Server Error status
