@@ -25,18 +25,20 @@ exports.handler = async (event) => {
 
     console.log(JSON.stringify(response.data, null, 2));
 
-    await octokit.request(
+    const res = await octokit.request(
       "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
       {
         owner: "readyfastcode",
         repo: "foodready-mobile",
-        workflow_id: "manual-staging-build",
+        workflow_id: "89219970",
         ref: "MA-792/fix-workflows",
         headers: {
           "X-GitHub-Api-Version": "2022-11-28",
         },
       }
     );
+
+    console.log(JSON.stringify(res, null, 2));
 
     return {
       statusCode: 200,
