@@ -13,7 +13,7 @@ exports.handler = async (event) => {
     });
 
     await octokit.request(
-      "POST https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+      "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
       {
         owner: "readyfastcode",
         repo: "foodready-mobile",
