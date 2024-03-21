@@ -1,4 +1,4 @@
-const Octokit = require("octokit");
+const { Octokit } = require("octokit");
 
 exports.handler = async (event) => {
   // Only proceed if the incoming request is a POST request
