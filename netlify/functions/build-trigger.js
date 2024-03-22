@@ -36,7 +36,7 @@ exports.handler = async (event) => {
       owner: "readyfastcode",
       repo: "foodready-mobile",
       workflow_id: "89219970",
-      ref: "MA-792/fix-workflows",
+      ref: "master",
       headers: {
         "X-GitHub-Api-Version": "2022-11-28",
       },
