@@ -54,11 +54,21 @@ exports.handler = async (event) => {
   const text = parseQueryStringToJSON(event.body)?.text;
 
   if (text) {
-    const isExisting = await checkBranchExists(text);
-    if (isExisting) ref = text;
+    const res = await octokit.request(
+      "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+      {
+        owner: "readyfastcode",
+        repo: "foodready-mobile",
+        workflow_id: "89219970",
+        ref: text,
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      }
+    );
   }
 
-  console.log("Ref:", ref);
+  console.log("Ref:", res, ref);
 
   return;
 
