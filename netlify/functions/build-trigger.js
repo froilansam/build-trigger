@@ -50,6 +50,14 @@ exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
+  const token = process.env.GITHUB_TOKEN;
+  const slackToken = process.env.SLACK_BOT_TOKEN;
+  const web = new WebClient(slackToken);
+  const channel = "C06FHJZ2Q0H";
+
+  const octokit = new Octokit({
+    auth: token,
+  });
   let ref = "master";
   const text = parseQueryStringToJSON(event.body)?.text;
 
@@ -71,15 +79,6 @@ exports.handler = async (event) => {
   console.log("Ref:", res, ref);
 
   return;
-
-  const token = process.env.GITHUB_TOKEN;
-  const slackToken = process.env.SLACK_BOT_TOKEN;
-  const web = new WebClient(slackToken);
-  const channel = "C06FHJZ2Q0H";
-
-  const octokit = new Octokit({
-    auth: token,
-  });
 
   await octokit.request(
     "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
