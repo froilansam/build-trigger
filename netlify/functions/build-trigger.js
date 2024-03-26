@@ -10,6 +10,10 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
+  console.log(JSON.stringify({ event }, null, 2));
+
+  return;
+
   const token = process.env.GITHUB_TOKEN;
   const slackToken = process.env.SLACK_BOT_TOKEN;
   const web = new WebClient(slackToken);
@@ -18,17 +22,6 @@ exports.handler = async (event) => {
   const octokit = new Octokit({
     auth: token,
   });
-
-  const response = await octokit.request(
-    "GET /repos/{owner}/{repo}/actions/workflows",
-    {
-      owner: "readyfastcode",
-      repo: "foodready-mobile",
-      headers: {
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    }
-  );
 
   await octokit.request(
     "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
