@@ -1,16 +1,64 @@
 const { Octokit } = require("octokit");
 const { WebClient } = require("@slack/web-api");
 
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function parseQueryStringToJSON(str) {
+  const queryParams = str.split("&");
+  let result = {};
+
+  queryParams.forEach((param) => {
+    let [key, value] = param.split("=");
+    // Use decodeURIComponent to decode URI components.
+    key = decodeURIComponent(key);
+    value = decodeURIComponent(value);
+    result[key] = value;
+  });
+
+  return result;
+}
+
+async function checkBranchExists(branch) {
+  const token = process.env.GITHUB_TOKEN;
+  const owner = "readyfastcode";
+  const repo = "foodready-mobile";
+
+  const octokit = new Octokit({
+    auth: token,
+  });
+
+  try {
+    await octokit.request("GET /repos/{owner}/{repo}/branches/{branch}", {
+      owner,
+      repo,
+      branch,
+    });
+    // If the request is successful, the branch exists
+    console.log(`Branch "${branch}" exists in ${owner}/${repo}`);
+    return true;
+  } catch (error) {
+    // If the branch does not exist, GitHub API will return a 404 error
+    if (error.status === 404) {
+      console.log(`Branch "${branch}" does not exist in ${owner}/${repo}`);
+    } else {
+      // Other errors (e.g., network issues, authentication problems)
+      console.error("Error:", error);
+    }
+    return false;
+  }
 }
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
+  let ref = "master";
+  const text = parseQueryStringToJSON(event.body)?.text;
 
-  console.log(JSON.stringify({ event }, null, 2));
+  if (text) {
+    const isExisting = await checkBranchExists(text);
+    if (isExisting) ref = text;
+  }
+
+  console.log("Ref:", ref);
 
   return;
 
