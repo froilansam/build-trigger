@@ -1,98 +1,41 @@
-const { Octokit } = require("octokit");
+const { Octokit } = require("@octokit/core");
 const { WebClient } = require("@slack/web-api");
 
 function parseQueryStringToJSON(str) {
-  const queryParams = str.split("&");
-  let result = {};
-
-  queryParams.forEach((param) => {
+  return str.split("&").reduce((result, param) => {
     let [key, value] = param.split("=");
-    // Use decodeURIComponent to decode URI components.
-    key = decodeURIComponent(key);
-    value = decodeURIComponent(value);
-    result[key] = value;
-  });
-
-  return result;
+    result[decodeURIComponent(key)] = decodeURIComponent(value);
+    return result;
+  }, {});
 }
 
-async function checkBranchExists(branch) {
-  const token = process.env.GITHUB_TOKEN;
+async function dispatchWorkflow(ref) {
+  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+  const workflowId = "89219970";
   const owner = "readyfastcode";
   const repo = "foodready-mobile";
 
-  const octokit = new Octokit({
-    auth: token,
-  });
-
   try {
-    await octokit.request("GET /repos/{owner}/{repo}/branches/{branch}", {
-      owner,
-      repo,
-      branch,
-    });
-    // If the request is successful, the branch exists
-    console.log(`Branch "${branch}" exists in ${owner}/${repo}`);
+    await octokit.request(
+      "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+      {
+        owner,
+        repo,
+        workflow_id: workflowId,
+        ref,
+        headers: { "X-GitHub-Api-Version": "2022-11-28" },
+      }
+    );
     return true;
-  } catch (error) {
-    // If the branch does not exist, GitHub API will return a 404 error
-    if (error.status === 404) {
-      console.log(`Branch "${branch}" does not exist in ${owner}/${repo}`);
-    } else {
-      // Other errors (e.g., network issues, authentication problems)
-      console.error("Error:", error);
-    }
+  } catch (err) {
+    console.error(`Error dispatching workflow for ref ${ref}: ${err}`);
     return false;
   }
 }
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-  const token = process.env.GITHUB_TOKEN;
-  const slackToken = process.env.SLACK_BOT_TOKEN;
-  const web = new WebClient(slackToken);
+async function postMessageToSlack(ref) {
+  const web = new WebClient(process.env.SLACK_BOT_TOKEN);
   const channel = "C06FHJZ2Q0H";
-
-  const octokit = new Octokit({
-    auth: token,
-  });
-  let ref = "master";
-  const text = parseQueryStringToJSON(event.body)?.text;
-
-  if (text) {
-    const res = await octokit.request(
-      "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
-      {
-        owner: "readyfastcode",
-        repo: "foodready-mobile",
-        workflow_id: "89219970",
-        ref: text,
-        headers: {
-          "X-GitHub-Api-Version": "2022-11-28",
-        },
-      }
-    );
-  }
-
-  console.log("Ref:", res, ref);
-
-  return;
-
-  await octokit.request(
-    "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
-    {
-      owner: "readyfastcode",
-      repo: "foodready-mobile",
-      workflow_id: "89219970",
-      ref: "master",
-      headers: {
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    }
-  );
-
   await web.chat.postMessage({
     channel: channel,
     blocks: [
@@ -100,7 +43,9 @@ exports.handler = async (event) => {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*FroBot is now building Staging and Dev-client Apps* \n\nWorkflows Link: https://github.com/readyfastcode/foodready-mobile/actions/workflows/manual-staging-build.yml`,
+          text: `*FroBot is now building Staging and Dev-client Apps ${
+            ref !== "master" ? `based on ${ref} branch` : ""
+          }* \n\nWorkflows Link: https://github.com/readyfastcode/foodready-mobile/actions/workflows/manual-staging-build.yml`,
         },
         accessory: {
           type: "image",
@@ -110,6 +55,24 @@ exports.handler = async (event) => {
       },
     ],
   });
+}
+
+exports.handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method Not Allowed" };
+  }
+
+  const body = parseQueryStringToJSON(event.body);
+  let ref = body?.text || "master";
+
+  const success = await dispatchWorkflow(ref);
+
+  if (!success) {
+    ref = "master";
+    await dispatchWorkflow(ref); // Fallback to master branch if initial dispatch fails
+  }
+
+  await postMessageToSlack(ref);
 
   return {
     statusCode: 200,
